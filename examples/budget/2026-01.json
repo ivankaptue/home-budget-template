@@ -1,0 +1,28 @@
+{
+  "envelopes": [
+    { "id": "principal", "label": "Budget principal", "shortLabel": "Principal", "income": 1600, "categories": [
+      { "id": "maison", "label": "Maison", "items": [
+        { "id": "loyer", "label": "Loyer", "budget": 800, "type": "fixed", "manager": "I" }
+      ]},
+      { "id": "courant", "label": "Vie courante", "items": [
+        { "id": "alimentation", "label": "Alimentation", "budget": 400, "type": "variable", "manager": "H" },
+        { "id": "loisirs", "label": "Loisirs", "budget": 100, "type": "variable", "manager": "H", "leftoverToSavings": true, "note": "reste → épargne" }
+      ]},
+      { "id": "epargne", "label": "Épargne", "items": [
+        { "id": "epargne", "label": "Épargne", "budget": 300, "type": "fixed", "manager": "I", "nature": "savings" }
+      ]}
+    ]},
+    { "id": "secondaire", "label": "Revenu secondaire", "shortLabel": "Secondaire", "income": 400, "categories": [
+      { "id": "secondaire", "label": "Répartition", "items": [
+        { "id": "transport", "label": "Transport", "budget": 200, "type": "fixed", "manager": "I" },
+        { "id": "courses", "label": "Courses", "budget": 100, "type": "fixed", "manager": "H", "transferTo": "alimentation" },
+        { "id": "reserve", "label": "Réserve", "budget": 100, "type": "fixed", "manager": "I", "nature": "savings" }
+      ]}
+    ]}
+  ],
+  "annualNote": "payées par la réserve",
+  "annualItems": [
+    { "id": "assurance", "label": "Assurance", "budget": 600, "type": "fixed", "manager": "I" },
+    { "id": "vacances", "label": "Vacances", "budget": null, "type": "variable", "manager": "I" }
+  ]
+}

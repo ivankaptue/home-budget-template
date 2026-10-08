@@ -1,0 +1,21 @@
+.obsidian/
+.idea/
+node_modules/
+app/dist/
+exports/
+*.local
+service-account*.json
+firebase-debug.log
+firestore-debug.log
+ui-debug.log
+.vitest/
+
+# Firebase service account keys (never commit, never read)
+firebase/*-????????????.json
+.firebase/
+
+# Personal setup — never committed (see .env.example and SETUP.md)
+.env
+.firebaserc
+firebase/firestore.rules
+budget/*.json

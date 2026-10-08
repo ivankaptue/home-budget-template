@@ -1,0 +1,85 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // The email list comes from ALLOWED_EMAILS (.env or CI secret): `npm run rules` writes firebase/firestore.rules.
+    function isAllowed() {
+      return request.auth != null
+        && request.auth.token.email_verified == true
+        && request.auth.token.email in [__ALLOWED_EMAILS__];
+    }
+
+    function validExpense(d) {
+      let fields = ['kind', 'scope', 'item', 'amount', 'note', 'date', 'month', 'year', 'by', 'createdAt', 'updatedAt'];
+      let parts = d.date is string ? d.date.split('-') : [];
+      return d.keys().hasOnly(fields) && d.keys().hasAll(fields)
+        && d.kind in ['expense', 'check']
+        && d.scope in ['monthly', 'annual']
+        && d.item is string && d.item.size() > 0 && d.item.size() <= 60
+        && d.amount is int && d.amount <= 100000000
+        && (d.kind == 'check' ? d.amount >= 0 : d.amount > 0)
+        && d.note is string && d.note.size() <= 80
+        && d.date is string && d.date.matches('^[0-9]{4}-(0[1-9]|1[0-2])-(0[1-9]|[12][0-9]|3[01])$')
+        && d.month == parts[0] + '-' + parts[1]
+        && d.year == int(parts[0])
+        && d.by is string
+        && d.createdAt is timestamp && d.updatedAt is timestamp;
+    }
+
+    function validOutflow(id, d) {
+      let fields = ['scope', 'item', 'period', 'year', 'by', 'createdAt'];
+      return d.keys().hasOnly(fields) && d.keys().hasAll(fields)
+        && d.scope in ['monthly', 'annual']
+        && d.item is string && d.item.size() > 0 && d.item.size() <= 60
+        && d.period is string
+        && (d.scope == 'monthly'
+          ? d.period.matches('^[0-9]{4}-(0[1-9]|1[0-2])$') && id == 'out_' + d.period + '_' + d.item
+          : d.period.matches('^[0-9]{4}$') && id == 'out_' + d.period + '_A_' + d.item)
+        && d.year is int && d.year == int(d.period.split('-')[0])
+        && d.by == request.auth.uid
+        && d.createdAt == request.time;
+    }
+
+    match /budgets/{id} {
+      allow read: if isAllowed();
+      allow write: if false;
+    }
+
+    match /members/{uid} {
+      allow read: if isAllowed();
+      allow write: if isAllowed() && uid == request.auth.uid
+        && request.resource.data.keys().hasOnly(['name', 'photoURL'])
+        && request.resource.data.name is string && request.resource.data.name.size() <= 100
+        && request.resource.data.photoURL is string && request.resource.data.photoURL.size() <= 2000;
+    }
+
+    match /expenses/{id} {
+      allow read, delete: if isAllowed();
+
+      allow create: if isAllowed()
+        && validExpense(request.resource.data)
+        && request.resource.data.by == request.auth.uid
+        && request.resource.data.createdAt == request.time
+        && request.resource.data.updatedAt == request.time;
+
+      allow update: if isAllowed()
+        && validExpense(request.resource.data)
+        && request.resource.data.updatedAt == request.time
+        && (
+          (request.resource.data.by == resource.data.by
+            && request.resource.data.createdAt == resource.data.createdAt)
+          || (request.resource.data.kind == 'check'
+            && resource.data.kind == 'check'
+            && request.resource.data.by == request.auth.uid
+            && request.resource.data.createdAt == request.time)
+        );
+    }
+
+    // "Sorti du compte chèque" ticks: counted in no total. Update is allowed so that the second of two offline
+    // ticks of the same item (setDoc on an existing doc) is not refused.
+    match /outflows/{id} {
+      allow read, delete: if isAllowed();
+      allow create, update: if isAllowed() && validOutflow(id, request.resource.data);
+    }
+  }
+}
