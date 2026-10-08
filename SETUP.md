@@ -78,7 +78,8 @@ Secrets and variables → Actions, add:
 - **secrets**: `ALLOWED_EMAILS`, and `FIREBASE_SERVICE_ACCOUNT` (the content of a service-account key allowed to
   deploy Hosting, Firestore rules and indexes).
 
-Without them the build or the rules step fails before anything is deployed.
+Until all of them are set, the workflow still runs every check and builds with placeholder values, but never
+deploys (a notice says so in the run summary).
 
 ## Troubleshooting
 

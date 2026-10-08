@@ -7,6 +7,15 @@ and are not app versions.
 
 ## [Unreleased]
 
+## [1.0.1] — 2026-10-08
+
+### Added
+- MIT license (`LICENSE`).
+
+### Changed
+- CI: without its own Firebase configuration (fresh copy, PR from a fork), the workflow runs every check and builds
+  with placeholder values, but never deploys — no more failing build on a new copy.
+
 ## [1.0.0] — 2026-10-07
 
 ### Added

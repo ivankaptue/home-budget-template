@@ -110,7 +110,8 @@ left the account.
 - **Manual**: `npm run build && npx firebase deploy --only hosting,firestore:rules,firestore:indexes`.
 - Before deploying the rules, the `predeploy` hook (`firebase.json`) runs `npm run rules`, which writes
   `firebase/firestore.rules` from `firebase/firestore.template.rules` and `ALLOWED_EMAILS`; the build refuses to run
-  without the `VITE_FIREBASE_*` values.
+  without the `VITE_FIREBASE_*` values. In CI, a repository without them (fresh fork or template) runs the checks,
+  builds with placeholder values and does not deploy.
 
 ## Versions and rollback
 
@@ -152,3 +153,7 @@ Writes `exports/YYYY-MM-DD/` (budgets.json, expenses.json, expenses.csv) — git
 `docs/superpowers/`, `.claude/`, `CHANGELOG.md` replaced by a stub), then fails if anything from `.env` — emails,
 Firebase ids, tagline, or the words listed in `SHARE_FORBIDDEN` — is still in it. Push that folder to the shared
 repository (to update it later: export again into a new folder and copy it over the shared clone, keeping `.git`).
+
+## License
+
+[MIT](LICENSE) — free to use, copy, modify and share; no warranty.
